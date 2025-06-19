@@ -1,0 +1,1804 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>夜间应急疏散训练</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            touch-action: manipulation;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a1429, #050a16);
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+            padding: 15px;
+        }
+        
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, transparent 5%, rgba(0, 0, 0, 0.97) 90%);
+            z-index: -1;
+        }
+        
+        /* 开始动画层 */
+        .intro-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a1429, #050a16);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 10000;
+            transition: opacity 1s ease;
+        }
+        
+        .intro-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .intro-content {
+            max-width: 800px;
+            width: 90%;
+            padding: 30px;
+            background: rgba(10, 20, 40, 0.8);
+            border-radius: 15px;
+            border: 2px solid #ff9a00;
+            box-shadow: 0 0 30px rgba(255, 154, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .intro-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: #ff9a00;
+            margin-bottom: 25px;
+            text-shadow: 0 0 15px rgba(255, 154, 0, 0.7);
+            animation: titleGlow 2s infinite alternate;
+        }
+        
+        .intro-text {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 25px;
+            color: #e0e0e0;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .intro-text p {
+            margin-bottom: 15px;
+            padding-left: 20px;
+            border-left: 3px solid #ff9a00;
+        }
+        
+        .safety-tip {
+            background: rgba(244, 67, 54, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #f44336;
+            margin: 25px 0;
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+        
+        .safety-tip strong {
+            color: #ff9a00;
+            font-size: 1.3rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #ff9a00, #ff6a00);
+            border-radius: 6px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        
+        .countdown {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 1.2rem;
+            color: #ff9a00;
+        }
+        
+        .factory-icon {
+            position: absolute;
+            font-size: 15rem;
+            color: rgba(255, 154, 0, 0.1);
+            z-index: 1;
+        }
+        
+        .factory-icon-1 {
+            top: 20px;
+            left: 20px;
+        }
+        
+        .factory-icon-2 {
+            bottom: 20px;
+            right: 20px;
+            transform: rotate(180deg);
+        }
+        
+        .alarm-animation {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 5rem;
+            color: #f44336;
+            animation: alarmPulse 1s infinite;
+            opacity: 0;
+        }
+        
+        @keyframes alarmPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+        }
+        
+        .skip-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        
+        .skip-btn:hover {
+            background: rgba(255, 154, 0, 0.5);
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 1000px;
+            width: 100%;
+            padding: 15px;
+            z-index: 1;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 15px;
+            width: 100%;
+            animation: titleGlow 2s infinite alternate;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+            color: #ff9a00;
+            text-shadow: 0 0 10px rgba(255, 154, 0, 0.5);
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            max-width: 700px;
+            margin: 0 auto 15px;
+            line-height: 1.5;
+            color: #e0e0e0;
+        }
+        
+        .game-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+            aspect-ratio: 8/5;
+            background: #080c18;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+            margin-bottom: 15px;
+            border: 2px solid #2a3a5a;
+        }
+        
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .stats-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 15px;
+            background: rgba(15, 25, 40, 0.8);
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #324a6e;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .stat-box {
+            text-align: center;
+            padding: 8px 15px;
+            background: rgba(35, 55, 85, 0.6);
+            border-radius: 8px;
+            min-width: 120px;
+            border: 1px solid #3d5a80;
+            transition: transform 0.3s ease;
+            flex: 1;
+        }
+        
+        .stat-box:hover {
+            transform: translateY(-3px);
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #4fc3f7;
+            text-shadow: 0 0 8px rgba(79, 195, 247, 0.5);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            width: 100%;
+            max-width: 800px;
+            margin-top: 10px;
+        }
+        
+        button {
+            padding: 10px 25px;
+            font-size: 1rem;
+            background: linear-gradient(to right, #ff9a00, #ff6a00);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(255, 106, 0, 0.4);
+            flex: 1;
+            min-width: 140px;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 106, 0, 0.6);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        #restartBtn {
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            box-shadow: 0 5px 15px rgba(0, 242, 254, 0.4);
+        }
+        
+        #restartBtn:hover {
+            box-shadow: 0 8px 20px rgba(0, 242, 254, 0.6);
+        }
+        
+        .instructions {
+            background: rgba(15, 25, 40, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 800px;
+            margin-top: 15px;
+            border: 1px solid #324a6e;
+        }
+        
+        .instructions h2 {
+            color: #4fc3f7;
+            margin-bottom: 12px;
+            text-align: center;
+            font-size: 1.4rem;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+        
+        .key {
+            display: inline-block;
+            background: rgba(50, 70, 100, 0.8);
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid #5d7ca6;
+            font-family: monospace;
+        }
+        
+        .safety-tips {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #324a6e;
+            font-style: italic;
+            color: #a5d8ff;
+            font-size: 0.9rem;
+        }
+        
+        .flashlight-effect {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            width: 240px;
+            height: 240px;
+        }
+        
+        .game-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10, 20, 40, 0.95);
+            padding: 20px 30px;
+            border-radius: 12px;
+            text-align: center;
+            z-index: 20;
+            border: 3px solid #ff9a00;
+            box-shadow: 0 0 20px rgba(255, 154, 0, 0.5);
+            display: none;
+            animation: pulse 1.5s infinite alternate;
+            width: 90%;
+            max-width: 500px;
+        }
+        
+        .game-message h2 {
+            font-size: 2rem;
+            color: #ff9a00;
+            margin-bottom: 15px;
+        }
+        
+        .game-message p {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+        
+        .item-counter {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 12px 0;
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        .item-icon {
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            font-size: 1.3rem;
+            position: relative;
+        }
+        
+        .item-icon.collected {
+            background: rgba(76, 175, 80, 0.3);
+        }
+        
+        .item-icon.collected::after {
+            content: "✓";
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            width: 18px;
+            height: 18px;
+            background: #4CAF50;
+            border-radius: 50%;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        @keyframes titleGlow {
+            0% {
+                text-shadow: 0 0 10px rgba(255, 154, 0, 0.5);
+            }
+            100% {
+                text-shadow: 0 0 20px rgba(255, 154, 0, 0.8), 0 0 30px rgba(255, 154, 0, 0.6);
+            }
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 20px rgba(255, 154, 0, 0.5);
+            }
+            100% {
+                box-shadow: 0 0 40px rgba(255, 154, 0, 0.8);
+            }
+        }
+        
+        .time-added {
+            position: absolute;
+            color: #4CAF50;
+            font-weight: bold;
+            pointer-events: none;
+            animation: floatUp 1s forwards;
+            z-index: 15;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+        }
+        
+        .emergency-icons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 12px 0;
+            color: #ff9a00;
+            font-size: 1.8rem;
+        }
+        
+        .path-indicator {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: rgba(76, 175, 80, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 5;
+            animation: pathPulse 1.5s infinite;
+        }
+        
+        @keyframes pathPulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.5); opacity: 0.2; }
+        }
+        
+        .difficulty-selector {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 12px 0;
+            width: 100%;
+        }
+        
+        .difficulty-btn {
+            padding: 6px 15px;
+            background: rgba(50, 70, 100, 0.8);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #5d7ca6;
+            font-size: 0.9rem;
+        }
+        
+        .difficulty-btn.active {
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            box-shadow: 0 0 10px rgba(79, 195, 247, 0.5);
+        }
+        
+        .health-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(244, 67, 54, 0.3);
+            border-radius: 3px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .health-fill {
+            height: 100%;
+            background: linear-gradient(to right, #4CAF50, #8BC34A);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        .timer-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 152, 0, 0.3);
+            border-radius: 3px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .timer-fill {
+            height: 100%;
+            background: linear-gradient(to right, #FF9800, #FFC107);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+            background: rgba(255, 215, 0, 0.8);
+            z-index: 15;
+            animation: fadeOut 1s forwards;
+        }
+        
+        @keyframes fadeOut {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.5); }
+        }
+        
+        /* 二维码层样式 */
+        .qr-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        
+        .qr-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .qr-container {
+            background: linear-gradient(135deg, #1a2a6c, #0d1b2a);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
+            transform: scale(0.8);
+            transition: transform 0.5s ease;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 200, 255, 0.5);
+            border: 2px solid #ff9a00;
+        }
+        
+        .qr-overlay.active .qr-container {
+            transform: scale(1);
+        }
+        
+        .qr-title {
+            color: #ff9a00;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(255, 154, 0, 0.5);
+        }
+        
+        .qr-image {
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 15px;
+            background: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #4fc3f7;
+        }
+        
+        .qr-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .qr-text {
+            color: #fff;
+            margin-bottom: 12px;
+            line-height: 1.5;
+            font-size: 1rem;
+        }
+        
+        .qr-highlight {
+            color: #ff9a00;
+            font-weight: bold;
+        }
+        
+        .qr-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #ff5e62;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 1.3rem;
+            transition: transform 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+        
+        .qr-close:hover {
+            transform: rotate(90deg);
+            background: #ff3d43;
+        }
+        
+        .qr-button {
+            background: linear-gradient(to right, #ff9a00, #ff6a00);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            margin-top: 12px;
+            box-shadow: 0 5px 15px rgba(255, 106, 0, 0.4);
+        }
+        
+        .qr-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 106, 0, 0.6);
+        }
+        
+        .qr-button:active {
+            transform: translateY(1px);
+        }
+        
+        .qr-info {
+            background: rgba(20, 30, 48, 0.7);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+            border: 1px solid #324a6e;
+        }
+        
+        .qr-info p {
+            margin: 6px 0;
+            font-size: 0.85rem;
+            color: #a5d8ff;
+        }
+        
+        /* 触摸控制 */
+        .touch-controls {
+            display: none;
+            position: absolute;
+            bottom: 15px;
+            left: 0;
+            width: 100%;
+            padding: 0 15px;
+            z-index: 30;
+        }
+        
+        .d-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 5px;
+            width: 120px;
+            height: 120px;
+        }
+        
+        .d-pad-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            border: 2px solid rgba(79, 195, 247, 0.5);
+            user-select: none;
+        }
+        
+        .d-pad-btn:active {
+            background: rgba(79, 195, 247, 0.5);
+        }
+        
+        .d-pad-up {
+            grid-column: 2;
+            grid-row: 1;
+        }
+        
+        .d-pad-left {
+            grid-column: 1;
+            grid-row: 2;
+        }
+        
+        .d-pad-right {
+            grid-column: 3;
+            grid-row: 2;
+        }
+        
+        .d-pad-down {
+            grid-column: 2;
+            grid-row: 3;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .stat-box {
+                min-width: 100px;
+                padding: 6px 10px;
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            
+            .instructions h2 {
+                font-size: 1.2rem;
+            }
+            
+            .instructions li {
+                font-size: 0.85rem;
+            }
+            
+            .safety-tips {
+                font-size: 0.85rem;
+            }
+            
+            .game-message h2 {
+                font-size: 1.6rem;
+            }
+            
+            .game-message p {
+                font-size: 1rem;
+            }
+            
+            .touch-controls {
+                display: block;
+            }
+            
+            .intro-title {
+                font-size: 1.8rem;
+            }
+            
+            .intro-text {
+                font-size: 1rem;
+            }
+            
+            .safety-tip {
+                font-size: 0.95rem;
+            }
+            
+            .factory-icon {
+                font-size: 10rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .stat-box {
+                min-width: 80px;
+                padding: 5px 8px;
+            }
+            
+            .stat-value {
+                font-size: 1.3rem;
+            }
+            
+            button {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+                min-width: 120px;
+            }
+            
+            .item-icon {
+                width: 30px;
+                height: 30px;
+                font-size: 1.1rem;
+            }
+            
+            .emergency-icons {
+                font-size: 1.5rem;
+            }
+            
+            .d-pad {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .d-pad-btn {
+                font-size: 1.2rem;
+            }
+            
+            .qr-title {
+                font-size: 1.5rem;
+            }
+            
+            .qr-image {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .intro-title {
+                font-size: 1.5rem;
+            }
+            
+            .intro-text {
+                font-size: 0.9rem;
+            }
+            
+            .safety-tip {
+                font-size: 0.85rem;
+            }
+            
+            .factory-icon {
+                font-size: 8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 开始动画层 -->
+    <div class="intro-overlay" id="introOverlay">
+        <div class="intro-content">
+            <i class="fas fa-industry factory-icon factory-icon-1"></i>
+            <i class="fas fa-industry factory-icon factory-icon-2"></i>
+            
+            <h1 class="intro-title">背景故事</h1>
+            
+            <div class="intro-text">
+                <p>你工作的地方是有着几十年历史的**工厂，刚刚入职半个月，就要开始倒夜班。</p>
+                <p>在你翻看以往交接班记录的时候发现了以下信息：</p>
+                <p><i class="fas fa-exclamation-triangle" style="color:#ff9a00; margin-right:8px;"></i> 2024.3.15 23:47：厂区断电，已报修，15min后恢复供电；</p>
+                <p><i class="fas fa-exclamation-triangle" style="color:#ff9a00; margin-right:8px;"></i> 2024.3.16 22:47：厂区断电，已报修，电工未修复，切换另外一路供电；</p>
+                <p><i class="fas fa-exclamation-triangle" style="color:#ff9a00; margin-right:8px;"></i> 2024.3.18 1:50：厂区断电，已报修，45min后修复；</p>
+		<p><i class="fas fa-exclamation-triangle" style="color:#ff9a00; margin-right:8px;"></i> 2024.3.18 1:50：正要工作的时候，突然断电，头顶上响起了刺耳的警报声，于是你开始了自救逃生……；</p>
+            </div>
+            
+            <div class="safety-tip">
+                <strong><i class="fas fa-fire"></i> 安全常识普及：</strong>
+                浓烟中包含多种有毒气体，短短几十秒就可让人昏迷甚至死亡，且烟气温度最高可达700℃，进一步损伤呼吸系统，增加逃生难度。在面对火灾发生时，要保持冷静寻找安全出口，平时多积累消防逃生知识，会极大提升生存概率。
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <div class="countdown">倒计时: <span id="countdown">30</span>秒</div>
+            
+            <button class="skip-btn" id="skipBtn">跳过 <i class="fas fa-forward"></i></button>
+        </div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-running"></i> 夜间应急疏散训练</h1>
+            <p class="subtitle">在模拟的夜间紧急情况下，控制角色移动，收集应急物品并找到安全出口。收集物品可获得额外时间！</p>
+            <div class="emergency-icons">
+                <i class="fas fa-fire-extinguisher" title="灭火器"></i>
+                <i class="fas fa-head-side-mask" title="逃生面具"></i>
+                <i class="fas fa-first-aid" title="急救包"></i>
+                <i class="fas fa-light-emergency" title="应急灯"></i>
+                <i class="fas fa-hard-hat" title="安全帽"></i>
+            </div>
+        </header>
+        
+        <div class="difficulty-selector">
+            <div class="difficulty-btn active" data-difficulty="easy">简单</div>
+            <div class="difficulty-btn" data-difficulty="medium">中等</div>
+            <div class="difficulty-btn" data-difficulty="hard">困难</div>
+        </div>
+        
+        <div class="stats-container">
+            <div class="stat-box">
+                <div>收集物品</div>
+                <div class="stat-value"><span id="itemsCollected">0</span>/5</div>
+            </div>
+            <div class="stat-box">
+                <div>剩余时间</div>
+                <div class="stat-value" id="timeLeft">60</div>
+                <div class="timer-bar">
+                    <div class="timer-fill" id="timerFill"></div>
+                </div>
+            </div>
+            <div class="stat-box">
+                <div>生命值</div>
+                <div class="stat-value" id="health">100</div>
+                <div class="health-bar">
+                    <div class="health-fill" id="healthFill"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-container">
+            <canvas id="gameCanvas"></canvas>
+            <div id="gameMessage" class="game-message">
+                <h2 id="messageTitle">游戏结束</h2>
+                <p id="messageText"></p>
+                <button id="messageButton">再来一次</button>
+            </div>
+            
+            <!-- 触摸控制 -->
+            <div class="touch-controls">
+                <div class="d-pad">
+                    <div class="d-pad-btn d-pad-up" id="upBtn">↑</div>
+                    <div class="d-pad-btn d-pad-left" id="leftBtn">←</div>
+                    <div class="d-pad-btn d-pad-right" id="rightBtn">→</div>
+                    <div class="d-pad-btn d-pad-down" id="downBtn">↓</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="item-counter">
+            <div class="item-icon" id="item1"><i class="fas fa-fire-extinguisher"></i></div>
+            <div class="item-icon" id="item2"><i class="fas fa-head-side-mask"></i></div>
+            <div class="item-icon" id="item3"><i class="fas fa-first-aid"></i></div>
+            <div class="item-icon" id="item4"><i class="fas fa-light-emergency"></i></div>
+            <div class="item-icon" id="item5"><i class="fas fa-hard-hat"></i></div>
+        </div>
+        
+        <div class="controls">
+            <button id="startBtn"><i class="fas fa-play"></i> 开始游戏</button>
+            <button id="restartBtn"><i class="fas fa-redo"></i> 重新开始</button>
+        </div>
+        
+        <div class="instructions">
+            <h2><i class="fas fa-info-circle"></i> 游戏说明与安全提示</h2>
+            <ul>
+                <li>使用 <span class="key">方向键</span> 或 <span class="key">WASD</span> 或 <span style="color:#ff9a00">触摸按钮</span> 控制角色移动</li>
+                <li>收集所有应急物品（灭火器、逃生面具、急救包、应急灯、安全帽）</li>
+                <li>每收集一个物品可获得 <span style="color:#4CAF50">+10秒</span> 额外时间</li>
+                <li>在时间耗尽前找到安全出口（绿色区域）</li>
+                <li>避开障碍物（红色区域），碰到障碍物会减少生命值</li>
+                <li>在真实应急疏散中：保持冷静、遵循疏散路线、帮助他人</li>
+            </ul>
+            <div class="safety-tips">
+                <strong><i class="fas fa-exclamation-triangle"></i> 安全知识：</strong> 夜间疏散时，使用应急照明设备，注意脚下安全，避免推挤，按照疏散指示方向撤离，帮助有需要的人。
+            </div>
+        </div>
+    </div>
+    
+    <!-- 二维码层 -->
+    <div class="qr-overlay" id="qrOverlay">
+        <div class="qr-container">
+            <div class="qr-close" id="closeQR">
+                <i class="fas fa-times"></i>
+            </div>
+            <h2 class="qr-title">应急救援志愿者报名</h2>
+            
+            <div class="qr-image">
+                <img src="https://qr.wjx.cn/handler/qrcode.ashx?chl=https%3a%2f%2fwww.wjx.cn%2fvm%2fQWcF6ws.aspx&chs=120x120&nar=1&sign=3e6ec2ed7f5d02ca6d52f1f0c06205e015d69ff8" alt="报名二维码">
+            </div>
+            
+            <p class="qr-text">恭喜您成功完成<span class="qr-highlight">困难模式</span>挑战！</p>
+            <p class="qr-text">扫描二维码报名成为<span class="qr-highlight">线下参与者</span></p>
+            
+            <button class="qr-button">立即报名</button>
+            
+            <div class="qr-info">
+                <p><i class="fas fa-calendar-alt"></i> 报名截止：2025年6月13日</p>
+                <p><i class="fas fa-map-marker-alt"></i> 参与地点：107培训中心</p>
+                <p><i class="fas fa-phone-alt"></i> 咨询电话：186-1387-0805</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 开始动画控制
+            const introOverlay = document.getElementById('introOverlay');
+            const progressBar = document.getElementById('progressBar');
+            const countdownEl = document.getElementById('countdown');
+            const skipBtn = document.getElementById('skipBtn');
+            
+            let countdown = 30;
+            let countdownInterval;
+            
+            // 开始倒计时
+            function startCountdown() {
+                countdownInterval = setInterval(() => {
+                    countdown--;
+                    countdownEl.textContent = countdown;
+                    
+                    // 更新进度条
+                    const progress = ((30 - countdown) / 30) * 100;
+                    progressBar.style.width = `${progress}%`;
+                    
+                    // 在特定时间点显示警报动画
+                    if (countdown === 15) {
+                        showAlarm();
+                    }
+                    
+                    if (countdown <= 0) {
+                        clearInterval(countdownInterval);
+                        introOverlay.classList.add('hidden');
+                    }
+                }, 1000);
+            }
+            
+            // 显示警报动画
+            function showAlarm() {
+                const alarm = document.createElement('div');
+                alarm.className = 'alarm-animation';
+                alarm.innerHTML = '<i class="fas fa-bell"></i>';
+                
+                introOverlay.appendChild(alarm);
+                
+                // 添加声音效果（模拟）
+                setTimeout(() => {
+                    alarm.remove();
+                }, 3000);
+            }
+            
+            // 跳过按钮
+            skipBtn.addEventListener('click', () => {
+                clearInterval(countdownInterval);
+                introOverlay.classList.add('hidden');
+            });
+            
+            // 开始倒计时
+            startCountdown();
+
+            // 游戏主代码
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+            const startBtn = document.getElementById('startBtn');
+            const restartBtn = document.getElementById('restartBtn');
+            const messageButton = document.getElementById('messageButton');
+            const gameMessage = document.getElementById('gameMessage');
+            const messageTitle = document.getElementById('messageTitle');
+            const messageText = document.getElementById('messageText');
+            const itemsCollectedEl = document.getElementById('itemsCollected');
+            const timeLeftEl = document.getElementById('timeLeft');
+            const healthEl = document.getElementById('health');
+            const healthFill = document.getElementById('healthFill');
+            const timerFill = document.getElementById('timerFill');
+            const itemIcons = document.querySelectorAll('.item-icon');
+            const difficultyBtns = document.querySelectorAll('.difficulty-btn');
+            const qrOverlay = document.getElementById('qrOverlay');
+            const closeQR = document.getElementById('closeQR');
+            
+            // 触摸控制按钮
+            const upBtn = document.getElementById('upBtn');
+            const leftBtn = document.getElementById('leftBtn');
+            const rightBtn = document.getElementById('rightBtn');
+            const downBtn = document.getElementById('downBtn');
+            
+            // 设置画布大小
+            function setCanvasSize() {
+                const container = canvas.parentElement;
+                const containerWidth = container.clientWidth;
+                const containerHeight = container.clientHeight;
+                
+                canvas.width = containerWidth;
+                canvas.height = containerHeight;
+            }
+            
+            // 初始设置画布大小
+            setCanvasSize();
+            
+            // 游戏变量
+            let gameRunning = false;
+            let player = {
+                x: 100,
+                y: 250,
+                radius: 15,
+                speed: 5,
+                color: '#4fc3f7'
+            };
+            
+            let obstacles = [];
+            let emergencyItems = [];
+            let exits = [
+                // 顶部出口
+                {x: 700, y: 80, width: 60, height: 100},
+                // 中部出口
+                {x: 700, y: 200, width: 60, height: 100},
+                // 底部出口
+                {x: 700, y: 320, width: 60, height: 100}
+            ];
+            
+            let keys = {
+                ArrowUp: false,
+                ArrowDown: false,
+                ArrowLeft: false,
+                ArrowRight: false,
+                w: false,
+                a: false,
+                s: false,
+                d: false
+            };
+            
+            let itemsCollected = 0;
+            let totalItems = 5;
+            let health = 100;
+            let timeLeft = 60;
+            let gameTimer;
+            let gameLoop;
+            let difficulty = 'easy';
+            
+            // 初始化游戏
+            function initGame() {
+                player.x = 100;
+                player.y = canvas.height / 2;
+                itemsCollected = 0;
+                health = 100;
+                
+                // 根据难度设置时间
+                switch(difficulty) {
+                    case 'easy':
+                        timeLeft = 70;
+                        player.speed = 5;
+                        break;
+                    case 'medium':
+                        timeLeft = 50;
+                        player.speed = 3;
+                        break;
+                    case 'hard':
+                        timeLeft = 30;
+                        player.speed = 1.5;
+                        break;
+                }
+                
+                // 重置物品图标状态
+                itemIcons.forEach(icon => {
+                    icon.classList.remove('collected');
+                });
+                
+                // 创建多条路径的障碍物布局
+                obstacles = [
+                    // 顶部水平障碍
+                    {x: 0, y: 80, width: 150, height: 20},
+                    {x: 210, y: 80, width: 140, height: 20},
+                    {x: 400, y: 80, width: 150, height: 20},
+                    {x: 600, y: 80, width: 150, height: 20},
+                    
+                    // 中部水平障碍
+                    {x: 0, y: 200, width: 100, height: 20},
+                    {x: 150, y: 200, width: 100, height: 20},
+                    {x: 300, y: 200, width: 100, height: 20},
+                    {x: 450, y: 200, width: 100, height: 20},
+                    {x: 600, y: 200, width: 100, height: 20},
+                    
+                    // 底部水平障碍
+                    {x: 0, y: 320, width: 120, height: 20},
+                    {x: 180, y: 320, width: 120, height: 20},
+                    {x: 360, y: 320, width: 120, height: 20},
+                    {x: 540, y: 320, width: 120, height: 20},
+                    
+                    // 垂直障碍 - 创建多条路径
+                    {x: 150, y: 80, width: 20, height: 120},   // 左通道1
+                    {x: 350, y: 80, width: 20, height: 120},   // 左通道2
+                    {x: 550, y: 80, width: 20, height: 120},   // 右通道1
+                    
+                    {x: 250, y: 200, width: 20, height: 120},  // 中通道1
+                    {x: 450, y: 200, width: 20, height: 120},  // 中通道2
+                    {x: 650, y: 200, width: 20, height: 120},  // 右通道2
+                    
+                    // 随机障碍物 - 不阻挡主要路径
+                    {x: 50, y: 150, width: 30, height: 30},
+                    {x: 200, y: 280, width: 40, height: 40},
+                    {x: 400, y: 120, width: 25, height: 25},
+                    {x: 600, y: 280, width: 35, height: 35}
+                ];
+                
+                // 创建应急物品（使用图标） - 分布在多条路径上
+                emergencyItems = [
+                    // 顶部路径物品
+                    {x: 180, y: 120, type: 'fire-extinguisher', collected: false, icon: 'fas fa-fire-extinguisher'},
+                    {x: 380, y: 120, type: 'mask', collected: false, icon: 'fas fa-head-side-mask'},
+                    
+                    // 中部路径物品
+                    {x: 280, y: 250, type: 'firstaid', collected: false, icon: 'fas fa-first-aid'},
+                    {x: 480, y: 250, type: 'light', collected: false, icon: 'fas fa-light-emergency'},
+                    
+                    // 底部路径物品
+                    {x: 220, y: 350, type: 'helmet', collected: false, icon: 'fas fa-hard-hat'}
+                ];
+                
+                updateUI();
+            }
+            
+            // 绘制游戏
+            function draw() {
+                // 清除画布
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // 绘制背景网格（模拟建筑物内部）
+                ctx.strokeStyle = 'rgba(50, 80, 120, 0.15)';
+                ctx.lineWidth = 1;
+                for (let x = 0; x < canvas.width; x += 40) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvas.height);
+                    ctx.stroke();
+                }
+                for (let y = 0; y < canvas.height; y += 40) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(canvas.width, y);
+                    ctx.stroke();
+                }
+                
+                // 绘制多个安全出口
+                exits.forEach((exit, index) => {
+                    ctx.fillStyle = 'rgba(76, 175, 80, 0.7)';
+                    ctx.fillRect(exit.x, exit.y, exit.width, exit.height);
+                    ctx.fillStyle = '#fff';
+                    ctx.font = '14px Arial';
+                    ctx.fillText('安全出口 ' + (index + 1), exit.x + 5, exit.y + 50);
+                    
+                    // 绘制门把手
+                    ctx.fillStyle = '#FFD700';
+                    ctx.beginPath();
+                    ctx.arc(exit.x + exit.width - 10, exit.y + exit.height/2, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                
+                /*// 绘制出口指示箭头
+                exits.forEach(exit => {
+                    ctx.beginPath();
+                    ctx.moveTo(exit.x - 30, exit.y + exit.height/2);
+                    ctx.lineTo(exit.x, exit.y + exit.height/2);
+                    ctx.lineTo(exit.x - 15, exit.y + exit.height/2 - 10);
+                    ctx.moveTo(exit.x, exit.y + exit.height/2);
+                    ctx.lineTo(exit.x - 15, exit.y + exit.height/2 + 10);
+                    ctx.strokeStyle = '#4CAF50';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                });*/
+                
+                // 绘制障碍物
+                ctx.fillStyle = 'rgba(244, 67, 54, 0.7)';
+                obstacles.forEach(obstacle => {
+                    ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+                    
+                    // 添加纹理
+                    ctx.strokeStyle = 'rgba(200, 30, 30, 0.8)';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+                });
+                
+                // 绘制应急物品
+                emergencyItems.forEach(item => {
+                    if (!item.collected) {
+                        // 绘制物品背景
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+                        ctx.beginPath();
+                        ctx.arc(item.x, item.y, 20, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // 绘制图标
+                        ctx.font = '24px FontAwesome';
+                        ctx.fillStyle = '#FFD700';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        
+                        // 根据类型选择图标
+                        switch(item.type) {
+                            case 'fire-extinguisher':
+                                ctx.fillText('\uf134', item.x, item.y);
+                                break;
+                            case 'mask':
+                                ctx.fillText('\uf963', item.x, item.y);
+                                break;
+                            case 'firstaid':
+                                ctx.fillText('\uf479', item.x, item.y);
+                                break;
+                            case 'light':
+                                ctx.fillText('\ue1af', item.x, item.y);
+                                break;
+                            case 'helmet':
+                                ctx.fillText('\uf807', item.x, item.y);
+                                break;
+                        }
+                        
+                        // 绘制发光效果
+                        ctx.beginPath();
+                        ctx.arc(item.x, item.y, 25, 0, Math.PI * 2);
+                        ctx.fillStyle = 'rgba(255, 215, 0, 0.2)';
+                        ctx.fill();
+                    }
+                });
+                
+                // 绘制玩家
+                ctx.beginPath();
+                ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+                ctx.fillStyle = player.color;
+                ctx.fill();
+                
+                // 绘制玩家方向指示
+                ctx.beginPath();
+                ctx.moveTo(player.x, player.y);
+                ctx.lineTo(player.x + player.radius * 1.5, player.y);
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                
+                // 绘制手电筒光照效果
+                const gradient = ctx.createRadialGradient(
+                    player.x, player.y, 10,
+                    player.x, player.y, 120
+                );
+                gradient.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
+                gradient.addColorStop(0.6, 'rgba(0, 0, 0, 0.3)');
+                gradient.addColorStop(1, 'rgba(0, 0, 0, 0.95)');
+                
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // 绘制路径指示点
+                drawPathIndicators();
+            }
+            
+            // 绘制通往出口的路径指示
+            function drawPathIndicators() {
+                // 顶部路径
+                const topPath = [
+                    {x: 100, y: 100},   // 起点附近
+                    {x: 180, y: 100},   // 向右
+                    {x: 180, y: 120},   // 向下
+                    {x: 380, y: 120},   // 向右
+                    {x: 380, y: 100},   // 向上
+                    {x: 700, y: 100}    // 向右到出口
+                ];
+                
+                // 中部路径
+                const middlePath = [
+                    {x: 100, y: 250},   // 起点
+                    {x: 280, y: 250},   // 向右
+                    {x: 280, y: 250},   // 位置
+                    {x: 480, y: 250},   // 向右
+                    {x: 700, y: 250}    // 向右到出口
+                ];
+                
+                // 底部路径
+                const bottomPath = [
+                    {x: 100, y: 350},   // 起点
+                    {x: 220, y: 350},   // 向右
+                    {x: 220, y: 350},   // 位置
+                    {x: 420, y: 350},   // 向右
+                    {x: 700, y: 350}    // 向右到出口
+                ];
+                
+                // 绘制所有路径
+                [topPath, middlePath, bottomPath].forEach(path => {
+                    // 绘制路径线
+                    ctx.beginPath();
+                    ctx.moveTo(path[0].x, path[0].y);
+                    for (let i = 1; i < path.length; i++) {
+                        ctx.lineTo(path[i].x, path[i].y);
+                    }
+                    ctx.strokeStyle = 'rgba(76, 175, 80, 0.3)';
+                    ctx.lineWidth = 3;
+                    ctx.setLineDash([5, 5]);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                    
+                    // 绘制路径点
+                    path.forEach(point => {
+                        ctx.beginPath();
+                        ctx.arc(point.x, point.y, 6, 0, Math.PI * 2);
+                        ctx.fillStyle = 'rgba(76, 175, 80, 0.5)';
+                        ctx.fill();
+                        
+                        // 添加方向箭头
+                        if (point != path[path.length - 1]) {
+                            const nextPoint = path[path.indexOf(point) + 1];
+                            const angle = Math.atan2(nextPoint.y - point.y, nextPoint.x - point.x);
+                            
+                            ctx.save();
+                            ctx.translate(point.x, point.y);
+                            ctx.rotate(angle);
+                            
+                            ctx.beginPath();
+                            ctx.moveTo(0, 0);
+                            ctx.lineTo(-15, -8);
+                            ctx.lineTo(-15, 8);
+                            ctx.closePath();
+                            ctx.fillStyle = '#4CAF50';
+                            ctx.fill();
+                            
+                            ctx.restore();
+                        }
+                    });
+                });
+            }
+            
+            // 更新游戏状态
+            function update() {
+                if (!gameRunning) return;
+                
+                // 保存玩家原始位置
+                const originalX = player.x;
+                const originalY = player.y;
+                
+                // 处理玩家移动
+                if (keys.ArrowUp || keys.w) player.y -= player.speed;
+                if (keys.ArrowDown || keys.s) player.y += player.speed;
+                if (keys.ArrowLeft || keys.a) player.x -= player.speed;
+                if (keys.ArrowRight || keys.d) player.x += player.speed;
+                
+                // 边界检查
+                if (player.x - player.radius < 0) player.x = player.radius;
+                if (player.x + player.radius > canvas.width) player.x = canvas.width - player.radius;
+                if (player.y - player.radius < 0) player.y = player.radius;
+                if (player.y + player.radius > canvas.height) player.y = canvas.height - player.radius;
+                
+                // 障碍物碰撞检测
+                let collided = false;
+                for (const obstacle of obstacles) {
+                    if (isCircleRectCollision(player, obstacle)) {
+                        collided = true;
+                        break;
+                    }
+                }
+                
+                if (collided) {
+                    // 碰到障碍物，恢复原始位置并减少生命值
+                    player.x = originalX;
+                    player.y = originalY;
+                    health -= 5;
+                    if (health < 0) health = 0;
+                    updateUI();
+                    createCollisionParticles(originalX, originalY);
+                    
+                    if (health <= 0) {
+                        endGame(false, "生命值耗尽！");
+                    }
+                }
+                
+                // 应急物品收集检测
+                emergencyItems.forEach((item, index) => {
+                    if (!item.collected) {
+                        const dx = player.x - item.x;
+                        const dy = player.y - item.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance < player.radius + 20) {
+                            item.collected = true;
+                            itemsCollected++;
+                            
+                            // 增加时间
+                            timeLeft += 10;
+                            
+                            // 显示时间增加动画
+                            showTimeAdded(item.x, item.y);
+                            createCollectionParticles(item.x, item.y);
+                            
+                            // 更新物品图标状态
+                            itemIcons[index].classList.add('collected');
+                            
+                            updateUI();
+                        }
+                    }
+                });
+                
+                // 安全出口检测 - 检查所有出口
+                let exitFound = false;
+                for (const exit of exits) {
+                    if (
+                        player.x > exit.x && 
+                        player.x < exit.x + exit.width &&
+                        player.y > exit.y && 
+                        player.y < exit.y + exit.height
+                    ) {
+                        exitFound = true;
+                        if (itemsCollected === totalItems) {
+                            endGame(true, "成功疏散！");
+                            return;
+                        } else {
+                            messageTitle.textContent = "缺少物品";
+                            messageText.textContent = `你还需要收集 ${totalItems - itemsCollected} 个应急物品！`;
+                            gameMessage.style.display = "block";
+                            setTimeout(() => {
+                                gameMessage.style.display = "none";
+                            }, 2000);
+                        }
+                        break;
+                    }
+                }
+                
+                draw();
+            }
+            
+            // 创建收集物品粒子效果
+            function createCollectionParticles(x, y) {
+                for (let i = 0; i < 15; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    
+                    const size = Math.random() * 10 + 5;
+                    particle.style.width = `${size}px`;
+                    particle.style.height = `${size}px`;
+                    particle.style.left = `${x + Math.random() * 40 - 20}px`;
+                    particle.style.top = `${y + Math.random() * 40 - 20}px`;
+                    
+                    document.querySelector('.game-container').appendChild(particle);
+                    
+                    setTimeout(() => {
+                        particle.remove();
+                    }, 1000);
+                }
+            }
+            
+            // 创建碰撞粒子效果
+            function createCollisionParticles(x, y) {
+                for (let i = 0; i < 10; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.background = 'rgba(244, 67, 54, 0.8)';
+                    
+                    const size = Math.random() * 8 + 3;
+                    particle.style.width = `${size}px`;
+                    particle.style.height = `${size}px`;
+                    particle.style.left = `${x + Math.random() * 30 - 15}px`;
+                    particle.style.top = `${y + Math.random() * 30 - 15}px`;
+                    
+                    document.querySelector('.game-container').appendChild(particle);
+                    
+                    setTimeout(() => {
+                        particle.remove();
+                    }, 800);
+                }
+            }
+            
+            // 显示时间增加动画
+            function showTimeAdded(x, y) {
+                const timeEl = document.createElement('div');
+                timeEl.className = 'time-added';
+                timeEl.textContent = '+10s';
+                timeEl.style.left = `${x}px`;
+                timeEl.style.top = `${y}px`;
+                document.querySelector('.game-container').appendChild(timeEl);
+                
+                setTimeout(() => {
+                    timeEl.remove();
+                }, 1000);
+            }
+            
+            // 圆形与矩形碰撞检测
+            function isCircleRectCollision(circle, rect) {
+                let closestX = Math.max(rect.x, Math.min(circle.x, rect.x + rect.width));
+                let closestY = Math.max(rect.y, Math.min(circle.y, rect.y + rect.height));
+                
+                let distanceX = circle.x - closestX;
+                let distanceY = circle.y - closestY;
+                
+                return (distanceX * distanceX + distanceY * distanceY) < (circle.radius * circle.radius);
+            }
+            
+            // 更新UI
+            function updateUI() {
+                itemsCollectedEl.textContent = itemsCollected;
+                timeLeftEl.textContent = timeLeft;
+                healthEl.textContent = health;
+                
+                // 更新血条
+                healthFill.style.width = `${health}%`;
+                
+                // 更新时间条
+                let maxTime = 0;
+                switch(difficulty) {
+                    case 'easy': maxTime = 70; break;
+                    case 'medium': maxTime = 50; break;
+                    case 'hard': maxTime = 35; break;
+                }
+                timerFill.style.width = `${(timeLeft / maxTime) * 100}%`;
+                
+                // 根据生命值改变血条颜色
+                if (health > 70) {
+                    healthFill.style.background = 'linear-gradient(to right, #4CAF50, #8BC34A)';
+                } else if (health > 30) {
+                    healthFill.style.background = 'linear-gradient(to right, #FF9800, #FFC107)';
+                } else {
+                    healthFill.style.background = 'linear-gradient(to right, #f44336, #ff7961)';
+                }
+            }
+            
+            // 开始游戏
+            function startGame() {
+                if (gameRunning) return;
+                
+                initGame();
+                gameRunning = true;
+                
+                // 启动游戏循环
+                gameTimer = setInterval(() => {
+                    timeLeft--;
+                    updateUI();
+                    
+                    if (timeLeft <= 0) {
+                        endGame(false, "时间耗尽！");
+                    }
+                }, 1000);
+                
+                gameLoop = setInterval(update, 1000 / 60); // 60fps
+            }
+            
+            // 结束游戏
+            function endGame(isWin, message) {
+                gameRunning = false;
+                clearInterval(gameTimer);
+                clearInterval(gameLoop);
+                
+                messageTitle.textContent = isWin ? "任务成功！" : "任务失败";
+                messageText.textContent = message;
+                
+                if (isWin) {
+                    messageTitle.style.color = "#4CAF50";
+                    messageText.innerHTML = `你成功在${60 - timeLeft}秒内完成疏散！<br>应急疏散知识：保持冷静，沿安全通道撤离，帮助他人。`;
+                    
+                    // 如果是困难模式完成，显示二维码
+                    if (difficulty === 'hard') {
+                        setTimeout(() => {
+                            qrOverlay.classList.add('active');
+                        }, 1500);
+                    }
+                } else {
+                    messageTitle.style.color = "#f44336";
+                }
+                
+                gameMessage.style.display = "block";
+            }
+            
+            // 重置游戏
+            function resetGame() {
+                gameRunning = false;
+                clearInterval(gameTimer);
+                clearInterval(gameLoop);
+                gameMessage.style.display = "none";
+                initGame();
+                draw();
+                // 隐藏二维码层
+                qrOverlay.classList.remove('active');
+            }
+            
+            // 设置难度
+            function setDifficulty(level) {
+                difficulty = level;
+                difficultyBtns.forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.difficulty === level) {
+                        btn.classList.add('active');
+                    }
+                });
+                
+                // 如果游戏还没开始，重新初始化
+                if (!gameRunning) {
+                    initGame();
+                    draw();
+                }
+            }
+            
+            // 事件监听
+            startBtn.addEventListener('click', startGame);
+            restartBtn.addEventListener('click', resetGame);
+            messageButton.addEventListener('click', resetGame);
+            
+            // 难度选择
+            difficultyBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    setDifficulty(btn.dataset.difficulty);
+                });
+            });
+            
+            // 键盘事件
+            document.addEventListener('keydown', (e) => {
+                if (keys.hasOwnProperty(e.key)) {
+                    keys[e.key] = true;
+                }
+            });
+            
+            document.addEventListener('keyup', (e) => {
+                if (keys.hasOwnProperty(e.key)) {
+                    keys[e.key] = false;
+                }
+            });
+            
+            // 触摸控制事件
+            function addTouchControl(btn, key) {
+                btn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    keys[key] = true;
+                });
+                
+                btn.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    keys[key] = false;
+                });
+                
+                // 防止移动端点击穿透
+                btn.addEventListener('click', (e) => e.preventDefault());
+            }
+            
+            addTouchControl(upBtn, 'ArrowUp');
+            addTouchControl(leftBtn, 'ArrowLeft');
+            addTouchControl(rightBtn, 'ArrowRight');
+            addTouchControl(downBtn, 'ArrowDown');
+            
+            // 关闭二维码
+            closeQR.addEventListener('click', () => {
+                qrOverlay.classList.remove('active');
+            });
+            
+            // 窗口大小变化时重新设置画布
+            window.addEventListener('resize', () => {
+                setCanvasSize();
+                draw();
+            });
+            
+            // 初始绘制
+            initGame();
+            draw();
+        });
+    </script>
+</body>
+</html>
