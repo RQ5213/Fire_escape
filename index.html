@@ -919,7 +919,7 @@
                 <p><i class="fas fa-exclamation-triangle" style="color:#ff9a00; margin-right:8px;"></i> 2024.3.15 23:47：厂区断电，已报修，15min后恢复供电；</p>
                 <p><i class="fas fa-exclamation-triangle" style="color:#ff9a00; margin-right:8px;"></i> 2024.3.16 22:47：厂区断电，已报修，电工未修复，切换另外一路供电；</p>
                 <p><i class="fas fa-exclamation-triangle" style="color:#ff9a00; margin-right:8px;"></i> 2024.3.18 1:50：厂区断电，已报修，45min后修复；</p>
-		<p><i class="fas fa-exclamation-triangle" style="color:#ff9a00; margin-right:8px;"></i> 2024.3.18 1:50：正要工作的时候，突然断电，头顶上响起了刺耳的警报声，于是你开始了自救逃生……；</p>
+		<p><i class="fas fa-exclamation-triangle" style="color:#ff9a00; margin-right:8px;"></i> 正要工作的时候，突然断电，头顶上响起了刺耳的警报声，于是你开始了自救逃生……；</p>
             </div>
             
             <div class="safety-tip">
@@ -1031,7 +1031,7 @@
             <div class="qr-close" id="closeQR">
                 <i class="fas fa-times"></i>
             </div>
-            <h2 class="qr-title">应急救援志愿者报名</h2>
+            <h2 class="qr-title">线下突发事件处置活动报名</h2>
             
             <div class="qr-image">
                 <img src="https://qr.wjx.cn/handler/qrcode.ashx?chl=https%3a%2f%2fwww.wjx.cn%2fvm%2fQWcF6ws.aspx&chs=120x120&nar=1&sign=3e6ec2ed7f5d02ca6d52f1f0c06205e015d69ff8" alt="报名二维码">
@@ -1043,7 +1043,7 @@
             <button class="qr-button">立即报名</button>
             
             <div class="qr-info">
-                <p><i class="fas fa-calendar-alt"></i> 报名截止：2025年6月13日</p>
+                <p><i class="fas fa-calendar-alt"></i> 报名截止：2025年6月25日</p>
                 <p><i class="fas fa-map-marker-alt"></i> 参与地点：107培训中心</p>
                 <p><i class="fas fa-phone-alt"></i> 咨询电话：186-1387-0805</p>
             </div>
@@ -1399,7 +1399,7 @@
             }
             
             // 绘制通往出口的路径指示
-            function drawPathIndicators() {
+            /*function drawPathIndicators() {
                 // 顶部路径
                 const topPath = [
                     {x: 100, y: 100},   // 起点附近
@@ -1470,7 +1470,7 @@
                         }
                     });
                 });
-            }
+            }*/
             
             // 更新游戏状态
             function update() {
@@ -1649,7 +1649,7 @@
                 switch(difficulty) {
                     case 'easy': maxTime = 70; break;
                     case 'medium': maxTime = 50; break;
-                    case 'hard': maxTime = 35; break;
+                    case 'hard': maxTime = 30; break;
                 }
                 timerFill.style.width = `${(timeLeft / maxTime) * 100}%`;
                 
